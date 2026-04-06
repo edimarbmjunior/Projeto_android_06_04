@@ -8,7 +8,8 @@ import com.example.projeto_android_06_04.data.room.entities.Review
 
 @Database(
     entities = [Book::class, Review::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class AppDatabase: RoomDatabase() {
     abstract fun libraryDao(): LibraryDao
