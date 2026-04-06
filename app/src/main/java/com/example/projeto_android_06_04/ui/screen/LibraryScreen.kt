@@ -1,5 +1,6 @@
 package com.example.projeto_android_06_04.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,7 +9,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -19,27 +23,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.room.util.TableInfo
 import com.example.projeto_android_06_04.viewmodels.LibraryViewModel
 
 @Composable
 fun LibraryScreen(
     viewModel: LibraryViewModel = viewModel()
 ) {
-        val booksWithReviews = viewModel.booksWithReview.collectAsStateWithLifecycle()
+    val booksWithReviews = viewModel.booksWithReview.collectAsStateWithLifecycle()
 
     var title  by remember { mutableStateOf("") }
     var author  by remember { mutableStateOf("") }
 
-
     var reviewComent by remember { mutableStateOf("") }
     var reviewRating by remember { mutableStateOf(0f) }
 
+    val foundBook by viewModel.foundBook.collectAsStateWithLifecycle()
+    var idBook by remember { mutableStateOf("") }
+
     Column(
-        modifier = Modifier.padding(16.dp).fillMaxSize(),
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
     ) {
 
         Text("Cadastrar Livro", style = MaterialTheme.typography.titleLarge)
@@ -134,11 +142,43 @@ fun LibraryScreen(
         }
     }
 
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+    ) {
+        OutlinedTextField(
+            value = idBook,
+            onValueChange = { idBook = it },
+            label = { Text("Buscar Livro por ID") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = {
+                viewModel.searchBook(idBook.toIntOrNull() ?: 0)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Buscar Livro")
+        }
 
+        Spacer(modifier = Modifier.height(16.dp))
+        foundBook?.let { book ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "Título: ${book.title}", style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Autor: ${book.author}", style = MaterialTheme.typography.bodySmall)
+                    Text(text = "Clique para ver detalhes", color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        } ?: Text("Nenhum livro encontrado ou digite um ID para buscar um Livro!")
 
-
-
-
-
+    }
 
 }
